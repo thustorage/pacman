@@ -1,0 +1,45 @@
+/* config.h is generated from config.h.in by CMake */
+
+#pragma once
+
+#include <cstddef>
+
+static constexpr char PMEM_DIR[] = "/mnt/pmem@USE_NUMA_NODE@/";
+static constexpr size_t IDX_POOL_SIZE = 40ul << 30;
+
+static constexpr int USE_NUMA_NODE = @USE_NUMA_NODE@;
+// CPU cores information
+static constexpr int CORES_PER_SOCKET = 18;
+static constexpr int NUM_SOCKETS = 4;
+static constexpr int NUMA_SPAN = CORES_PER_SOCKET * NUM_SOCKETS;
+static constexpr int CPU_BIND_BEGIN_CORE = USE_NUMA_NODE * CORES_PER_SOCKET;
+
+#define CACHE_LINE_SIZE 64
+
+#cmakedefine IDX_PERSISTENT
+#cmakedefine LOG_PERSISTENT
+#cmakedefine USE_PMDK
+
+#define INDEX_TYPE @INDEX_TYPE@
+
+#ifdef LOG_PERSISTENT
+#cmakedefine LOG_BATCHING  // simulate FlatStore's batching
+static constexpr size_t LOG_BATCHING_SIZE = 512;
+#endif
+
+#cmakedefine GC_SHORTCUT
+#cmakedefine BATCH_COMPACTION
+#cmakedefine REDUCE_PM_ACCESS
+#cmakedefine HOT_COLD_SEPARATE
+
+#ifdef GC_SHORTCUT
+#define PREFETCH_ENTRY
+#endif
+
+#ifdef BATCH_COMPACTION
+#define BATCH_FLUSH_INDEX_ENTRY
+#endif
+
+#if defined(REDUCE_PM_ACCESS) || !defined(LOG_PERSISTENT)
+#define WRITE_TOMBSTONE
+#endif

@@ -1,0 +1,25 @@
+/* bench_config.h is generated from bench_config.h.in by CMake */
+
+#pragma once
+
+#include "benchmarks/trace.h"
+#include <cstddef>
+
+static constexpr size_t NUM_KEYS = @NUM_KEYS@;
+static constexpr size_t NUM_OPS_PER_THREAD = @NUM_OPS_PER_THREAD@;
+static constexpr size_t MAX_SCAN_LENGTH = 100;
+static constexpr size_t VALUE_SIZE = @VALUE_SIZE@;
+static constexpr int NUM_GC_THREADS = @NUM_GC_THREADS@;
+enum BenchmarkWorkload { YCSB, ETC };
+static constexpr BenchmarkWorkload benchmark_workload = @WORKLOAD_TYPE@;
+static constexpr YCSB_Type ycsb_type = @YCSB_TYPE@;
+static constexpr bool skew = @SKEW@;
+static constexpr double ZIPF_THETA = 0.99;
+
+
+#cmakedefine MEASURE_LATENCY
+#cmakedefine WARM_UP
+#cmakedefine USE_ALL_CORES
+#cmakedefine TEST_LOAD
+
+static constexpr int NUM_ALL_CORES = 36;

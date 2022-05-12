@@ -1,0 +1,10 @@
+# example
+add_executable(example ${DB_FILES} example.cpp)
+target_link_libraries(example ${PMEM} ${PMEMOBJ})
+if (INDEX_TYPE EQUAL 1)
+  target_link_libraries(example cceh)
+elseif (INDEX_TYPE EQUAL 2)
+  target_link_libraries(example fastfair)
+elseif (INDEX_TYPE EQUAL 3)
+  target_link_libraries(example masstree)
+endif()
