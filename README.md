@@ -1,8 +1,7 @@
 # Pacman
 
-This repository contains the artifact for the ATC'22 paper: "Pacman: An Efficient Compaction Approach for Log-Structured Key-Value Store on Persistent Memory".
+This repository contains the artifact for the USENIX ATC'22 paper: ["Pacman: An Efficient Compaction Approach for Log-Structured Key-Value Store on Persistent Memory"](https://www.usenix.org/conference/atc22/presentation/wang-jing).
 
-For ATC'22 Artifact Evaluation, please check out the Artifact README from the atc22ae hotcrp system.
 
 ## Directory structure
 

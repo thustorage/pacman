@@ -7,6 +7,7 @@
 
 static constexpr size_t NUM_KEYS = @NUM_KEYS@;
 static constexpr size_t NUM_OPS_PER_THREAD = @NUM_OPS_PER_THREAD@;
+static constexpr size_t NUM_WARMUP_OPS_PER_THREAD = @NUM_WARMUP_OPS_PER_THREAD@;
 static constexpr size_t MAX_SCAN_LENGTH = 100;
 static constexpr size_t VALUE_SIZE = @VALUE_SIZE@;
 static constexpr int NUM_GC_THREADS = @NUM_GC_THREADS@;
@@ -18,7 +19,6 @@ static constexpr double ZIPF_THETA = 0.99;
 
 
 #cmakedefine MEASURE_LATENCY
-#cmakedefine WARM_UP
 #cmakedefine USE_ALL_CORES
 #cmakedefine TEST_LOAD
 

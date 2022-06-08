@@ -65,11 +65,11 @@ cat /dev/null > ${OUTPUT_FILE}
 sudo cpupower frequency-set --governor performance > /dev/null
 
 NUM_KEYS=(
-  10000000
   50000000
   100000000
-  500000000
-  1000000000
+  200000000
+  400000000
+  800000000
 )
 
 # it may take long to get third-party dependencies, so don't delete _deps
@@ -77,11 +77,13 @@ ls | grep -v _deps | xargs rm -rf
 for num in "${NUM_KEYS[@]}"; do
   echo | tee -a ${OUTPUT_FILE}
   echo ${num} | tee -a ${OUTPUT_FILE}
+  num_warmup=$((${num} / 8))
   # build
   cmake -DCMAKE_BUILD_TYPE=Release -DUSE_NUMA_NODE=${NUMA_AFFINITY} \
     ${WITH_OTHERS} -DINDEX_TYPE=${INDEX_TYPE} ${IDX_PERSISTENT} ${PACMAN_OPT} \
-    -DNUM_KEYS=${num} -DNUM_OPS_PER_THREAD=20000000 \
-    -DNUM_GC_THREADS=4 -DSKEW=${SKEW} -DWARM_UP=ON ..
+    -DNUM_KEYS=${num} -DNUM_OPS_PER_THREAD=40000000 \
+    -DNUM_WARMUP_OPS_PER_THREAD=${num_warmup} -DNUM_GC_THREADS=4 \
+    -DSKEW=${SKEW} ..
 
   make ${TARGET} -j
   # clean cache

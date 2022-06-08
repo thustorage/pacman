@@ -50,8 +50,10 @@ class BaseFixture : public benchmark::Fixture {
 
  public:
   BaseFixture() {
-    printf("total keys: %lu NUM_OPS_PER_THREAD: %lu\n", NUM_KEYS,
-           NUM_OPS_PER_THREAD);
+    printf(
+        "total keys: %lu NUM_OPS_PER_THREAD: %lu NUM_WARMUP_OPS_PER_THREAD: "
+        "%lu\n",
+        NUM_KEYS, NUM_OPS_PER_THREAD, NUM_WARMUP_OPS_PER_THREAD);
     std::string benchmark_name;
     if constexpr (benchmark_workload == YCSB) {
       printf("benchmark: %s\n", ycsb_name[ycsb_type]);
@@ -60,9 +62,6 @@ class BaseFixture : public benchmark::Fixture {
     } else {
       printf("benchmark: ETC\n");
     }
-#ifdef WARM_UP
-    printf("warm up: true\n");
-#endif
     keys_seq.resize(NUM_KEYS);
     for (size_t i = 0; i < NUM_KEYS; i++) {
       keys_seq[i] = i;
@@ -116,33 +115,33 @@ class BaseFixture : public benchmark::Fixture {
 #endif
 
     barrier.Wait(st.threads());
-#ifdef WARM_UP
-    // warm up
-    if constexpr (benchmark_workload == YCSB) {
-      Random rand(st.thread_index() + 256);
-      zipf_gen_state zipf_state;
-      mehcached_zipf_init(&zipf_state, NUM_KEYS, ZIPF_THETA,
-                          st.thread_index() + 256);
-      std::vector<uint64_t> warm_up_key_bases;
-      warm_up_key_bases.reserve(actual_num_ops_per_thread);
-      for (size_t i = 0; i < actual_num_ops_per_thread; i++) {
-        uint64_t key;
-        if (skew) {
-          key = getKey(mehcached_zipf_next(&zipf_state));
-        } else {
-          key = getKey(rand.Uniform(NUM_KEYS));
+    if (NUM_WARMUP_OPS_PER_THREAD > 0) {
+      // warm up
+      if constexpr (benchmark_workload == YCSB) {
+        Random rand(st.thread_index() + 256);
+        zipf_gen_state zipf_state;
+        mehcached_zipf_init(&zipf_state, NUM_KEYS, ZIPF_THETA,
+                            st.thread_index() + 256);
+        std::vector<uint64_t> warm_up_key_bases;
+        warm_up_key_bases.reserve(NUM_WARMUP_OPS_PER_THREAD);
+        for (size_t i = 0; i < NUM_WARMUP_OPS_PER_THREAD; i++) {
+          uint64_t key;
+          if (skew) {
+            key = getKey(mehcached_zipf_next(&zipf_state));
+          } else {
+            key = getKey(rand.Uniform(NUM_KEYS));
+          }
+          warm_up_key_bases.push_back(key);
         }
-        warm_up_key_bases.push_back(key);
+        RunYCSBWorkload(st, 2048, warm_up_key_bases);
+      } else {
+        RunETCWorkload(st, 2048);
       }
-      RunYCSBWorkload(st, 256, warm_up_key_bases);
-    } else {
-      RunETCWorkload(st, 256);
-    }
 #ifdef MEASURE_LATENCY
-    latency_statistics[st.thread_index()].Clear();  // clear warmup statistics
+      latency_statistics[st.thread_index()].Clear();  // clear warmup statistics
 #endif
-    barrier.Wait(st.threads());
-#endif
+      barrier.Wait(st.threads());
+    }
   }
 
   virtual void TearDown(benchmark::State &st) override {

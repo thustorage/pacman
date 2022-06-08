@@ -107,8 +107,12 @@ CCEH::CCEH(size_t initCap)
 }
 
 CCEH::~CCEH(void) {
+  Segment *prev = nullptr;
   for (unsigned i = 0; i < dir->capacity; ++i) {
-    delete dir->_[i];
+    if (dir->_[i] != prev) {
+      prev = dir->_[i];
+      delete dir->_[i];
+    }
   }
   delete dir;
 }

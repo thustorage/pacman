@@ -51,6 +51,7 @@ configure_file(
 
 set(NUM_KEYS 200000000 CACHE STRING "number of keys")
 set(NUM_OPS_PER_THREAD 20000000 CACHE STRING "number of operations per thread")
+set(NUM_WARMUP_OPS_PER_THREAD 0 CACHE STRING "number of warmup operations per thread")
 set(VALUE_SIZE 48 CACHE STRING "value size")
 set(NUM_GC_THREADS 4 CACHE STRING "number of cleaner threads")
 set(WORKLOAD_TYPE YCSB CACHE STRING "workload type")  # YCSB ETC
@@ -59,7 +60,6 @@ set(YCSB_TYPE YCSB_A CACHE STRING "ycsb workload type if using YCSB")
 set(SKEW true CACHE STRING "Zipfian (skew) workload") # true false
 
 option(MEASURE_LATENCY "MEASURE_LATENCY" OFF)
-option(WARM_UP "WARM_UP" OFF)
 option(USE_ALL_CORES "use all cores in a numa node" OFF)
 option(TEST_LOAD "TEST_LOAD" OFF)
 
