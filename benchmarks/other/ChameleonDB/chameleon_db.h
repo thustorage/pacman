@@ -25,10 +25,7 @@ class ChameleonDB {
 
     ~Worker() {
 #ifdef LOG_BATCHING
-      BatchIndexInsert(buffer_queue_.size(), true);
-#ifdef HOT_COLD_SEPARATE
-      BatchIndexInsert(cold_buffer_queue_.size(), false);
-#endif
+      FlushRemainAndUpdateIndex();
 #endif
       FreezeSegment(log_head_);
       log_head_ = nullptr;
@@ -67,6 +64,21 @@ class ChameleonDB {
     bool Delete(const Slice &key) { ERROR_EXIT("not implemented yet"); }
 
 #ifdef LOG_BATCHING
+    void FlushRemainAndUpdateIndex() {
+      if (log_head_) {
+        int persist_cnt = log_head_->FlushRemain();
+        assert(persist_cnt == buffer_queue_.size());
+        BatchIndexInsert(persist_cnt, true);
+      }
+#ifdef HOT_COLD_SEPARATE
+      if (cold_log_head_) {
+        int persist_cnt = cold_log_head_->FlushRemain();
+        assert(persist_cnt == cold_buffer_queue_.size());
+        BatchIndexInsert(persist_cnt, false);
+      }
+#endif
+    }
+
     void BatchIndexInsert(int cnt, bool hot) {
       bool hit = false;
 #ifdef HOT_COLD_SEPARATE
@@ -77,7 +89,7 @@ class ChameleonDB {
       LogSegment *&segment = log_head_;
       std::queue<std::pair<KeyType, ValueType>> &queue = buffer_queue_;
 #endif
-      while (cnt--) {
+      while (cnt-- > 0) {
         std::pair<KeyType, ValueType> kv_pair = queue.front();
         db_->IndexPut(Slice((const char *)&kv_pair.first, sizeof(KeyType)),
                       kv_pair.second);

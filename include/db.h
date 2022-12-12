@@ -42,6 +42,10 @@ class DB {
     void Put(const Slice &key, const Slice &value);
     size_t Scan(const Slice &key, int cnt);
     bool Delete(const Slice &key);
+    
+#ifdef LOG_BATCHING
+    void FlushRemainAndUpdateIndex();
+#endif
 
    private:
     int worker_id_;

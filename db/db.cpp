@@ -111,10 +111,7 @@ DB::Worker::Worker(DB *db) : db_(db) {
 
 DB::Worker::~Worker() {
 #ifdef LOG_BATCHING
-  BatchIndexInsert(buffer_queue_.size(), true);
-#ifdef HOT_COLD_SEPARATE
-  BatchIndexInsert(cold_buffer_queue_.size(), false);
-#endif
+  FlushRemainAndUpdateIndex();
 #endif
   FreezeSegment(log_head_);
   log_head_ = nullptr;
@@ -166,6 +163,21 @@ size_t DB::Worker::Scan(const Slice &key, int cnt) {
 bool DB::Worker::Delete(const Slice &key) { ERROR_EXIT("not implemented yet"); }
 
 #ifdef LOG_BATCHING
+void DB::Worker::FlushRemainAndUpdateIndex() {
+  if (log_head_) {
+    int persist_cnt = log_head_->FlushRemain();
+    assert(persist_cnt == buffer_queue_.size());
+    BatchIndexInsert(persist_cnt, true);
+  }
+#ifdef HOT_COLD_SEPARATE
+  if (cold_log_head_) {
+    int persist_cnt = cold_log_head_->FlushRemain();
+    assert(persist_cnt == cold_buffer_queue_.size());
+    BatchIndexInsert(persist_cnt, false);
+  }
+#endif
+}
+
 void DB::Worker::BatchIndexInsert(int cnt, bool hot) {
 #ifdef HOT_COLD_SEPARATE
   std::queue<std::pair<KeyType, ValueType>> &queue =
@@ -173,7 +185,7 @@ void DB::Worker::BatchIndexInsert(int cnt, bool hot) {
 #else
   std::queue<std::pair<KeyType, ValueType>> &queue = buffer_queue_;
 #endif
-  while (cnt--) {
+  while (cnt-- > 0) {
     std::pair<KeyType, ValueType> kv_pair = queue.front();
     UpdateIndex(Slice((const char *)&kv_pair.first, sizeof(KeyType)),
                 kv_pair.second, hot);

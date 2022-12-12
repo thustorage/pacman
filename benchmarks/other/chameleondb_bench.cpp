@@ -97,6 +97,9 @@ BENCHMARK_DEFINE_F(ChameleonDBFixture, bench)(benchmark::State &st) {
   for (auto _ : st) {
     RunWorkload(st);
   }
+#ifdef LOG_BATCHING
+  worker->FlushRemainAndUpdateIndex();
+#endif
   assert(st.iterations() == 1);
   st.SetItemsProcessed(st.iterations() * actual_num_ops_per_thread);
   if (st.thread_index() == 0) {

@@ -104,6 +104,9 @@ BENCHMARK_DEFINE_F(DBFixture, bench)(benchmark::State &st) {
   if (st.thread_index() == 0) {
     db_->StartCleanStatistics();
   }
+#ifdef LOG_BATCHING
+  worker->FlushRemainAndUpdateIndex();
+#endif
   for (auto _ : st) {
     RunWorkload(st);
   }

@@ -1,7 +1,8 @@
 # Pacman
 
-This repository contains the artifact for the USENIX ATC'22 paper: ["Pacman: An Efficient Compaction Approach for Log-Structured Key-Value Store on Persistent Memory"](https://www.usenix.org/conference/atc22/presentation/wang-jing).
+This repository contains the artifact for the ATC'22 paper: "Pacman: An Efficient Compaction Approach for Log-Structured Key-Value Store on Persistent Memory".
 
+For ATC'22 Artifact Evaluation, please check out the Artifact README from the atc22ae hotcrp system.
 
 ## Directory structure
 
@@ -36,7 +37,7 @@ The major parts of Pacman's techniques are enabled by macro `GC_SHORTCUT` (Sec 3
   - numactl
   - cpupower
 
-If you're going to evaluate other systems (e.g., [PMem-RocksDB](https://github.com/pmem/pmem-rocksdb), [pmemkv](https://github.com/pmem/pmemkv)), please install the their dependencies. You don't need to install other systems manually since the cmake in this repository will fetch and build them automatically.
+If you're going to evaluate other systems (e.g., [PMem-RocksDB](https://github.com/pmem/pmem-rocksdb), [pmemkv](https://github.com/pmem/pmemkv)), please install their dependencies. You don't need to install other systems manually since the cmake in this repository will fetch and build them automatically.
 
 ## System configuration
 
@@ -55,7 +56,7 @@ $ sudo mount -o dax /dev/pmem0 /mnt/pmem0
 
 ## Building the benchmarks
 
-**We recommend that you use the scripts directly from the [scripts](scripts) directly. The scripts will build and run experiments automatically.**
+**We recommend that you use the scripts from the [scripts](scripts) directly. The scripts will build and run experiments automatically.**
 
 Quick start:
 
